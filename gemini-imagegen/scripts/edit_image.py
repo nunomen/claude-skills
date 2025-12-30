@@ -47,7 +47,7 @@ def edit_image(
     input_path: str,
     instruction: str,
     output_path: str,
-    model: str = "gemini-2.5-flash-image",
+    model: str = "gemini-3-pro-image-preview",
     aspect_ratio: str | None = None,
     image_size: str | None = None,
 ) -> str | None:
@@ -124,9 +124,9 @@ def main():
     parser.add_argument("output", help="Output file path")
     parser.add_argument(
         "--model", "-m",
-        default="gemini-2.5-flash-image",
+        default="gemini-3-pro-image-preview",
         choices=["gemini-2.5-flash-image", "gemini-3-pro-image-preview"],
-        help="Model to use (default: gemini-2.5-flash-image)"
+        help="Model to use (default: gemini-3-pro-image-preview)"
     )
     parser.add_argument(
         "--aspect", "-a",
