@@ -11,24 +11,27 @@ Generate and edit images using Google's Gemini API. The environment variable `GE
 
 Self-installing scripts using [uv](https://docs.astral.sh/uv/). Dependencies install automatically on first run.
 
+**IMPORTANT:** Always run scripts with `uv run` to ensure dependencies are available:
+
 ```bash
 # Generate image from prompt
-./scripts/generate_image.py "A sunset over mountains" sunset.jpg
+uv run ./scripts/generate_image.py "A sunset over mountains" sunset.jpg
 
 # Edit existing image
-./scripts/edit_image.py photo.jpg "Add a rainbow" edited.jpg
+uv run ./scripts/edit_image.py photo.jpg "Add a rainbow" edited.jpg
 
 # Compose multiple images
-./scripts/compose_images.py "Combine these into a collage" result.jpg img1.jpg img2.jpg
+uv run ./scripts/compose_images.py "Combine these into a collage" result.jpg img1.jpg img2.jpg
 
 # Interactive multi-turn chat
-./scripts/multi_turn_chat.py
+uv run ./scripts/multi_turn_chat.py
 ```
 
 Options available for all scripts:
 - `--model` / `-m`: Model selection (`gemini-2.5-flash-image` or `gemini-3-pro-image-preview`)
 - `--aspect` / `-a`: Aspect ratio (1:1, 16:9, 9:16, etc.)
 - `--size` / `-s`: Resolution (1K, 2K, 4K)
+- `--open` / `-o`: Open the generated image with the default system viewer
 
 ## Python Library
 

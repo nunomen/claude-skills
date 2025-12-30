@@ -23,10 +23,23 @@ Environment:
 
 import argparse
 import os
+import platform
+import subprocess
 import sys
 
 from google import genai
 from google.genai import types
+
+
+def open_with_default_viewer(file_path: str) -> None:
+    """Open a file with the system's default viewer."""
+    system = platform.system()
+    if system == "Darwin":  # macOS
+        subprocess.run(["open", file_path], check=True)
+    elif system == "Windows":
+        os.startfile(file_path)
+    else:  # Linux and others
+        subprocess.run(["xdg-open", file_path], check=True)
 
 
 def generate_image(
@@ -115,6 +128,11 @@ def main():
         choices=["1K", "2K", "4K"],
         help="Image resolution (4K only available with pro model)"
     )
+    parser.add_argument(
+        "--open", "-o",
+        action="store_true",
+        help="Open the generated image with the default viewer"
+    )
 
     args = parser.parse_args()
 
@@ -130,6 +148,9 @@ def main():
         print(f"Image saved to: {args.output}")
         if text:
             print(f"Model response: {text}")
+
+        if args.open:
+            open_with_default_viewer(args.output)
 
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
