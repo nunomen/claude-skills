@@ -139,6 +139,15 @@ def main():
         print(f"Video URL (download manually): {video_url}")
         sys.exit(1)
 
+    # Show cost estimate
+    model_id = client.VIDEO_MODELS.get(args.model, args.model)
+    cost_info = client.estimate_video_cost(
+        model_id=model_id,
+        duration_seconds=args.duration,
+    )
+    if cost_info:
+        print(f"Estimated cost: ${cost_info['cost']:.4f} ({cost_info['breakdown']})")
+
     # Open video if requested
     if args.open:
         try:

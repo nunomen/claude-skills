@@ -77,6 +77,30 @@ class FalClient:
         "landscape_16_9": (1344, 768),
     }
 
+    # Pricing data (fetched from fal.ai API on 2026-01-04)
+    # To update: run the update_pricing.py script with an admin API key
+    # curl "https://api.fal.ai/v1/models/pricing?endpoint_id=MODEL_ID" -H "Authorization: Key ADMIN_KEY"
+    PRICING = {
+        # Image models
+        "fal-ai/flux/schnell": {"unit_price": 0.003, "unit": "megapixels"},
+        "fal-ai/flux/dev": {"unit_price": 0.025, "unit": "megapixels"},
+        "fal-ai/flux-pro/v1.1": {"unit_price": 0.04, "unit": "megapixels"},
+        "fal-ai/flux-realism": {"unit_price": 0.035, "unit": "megapixels"},
+        "fal-ai/recraft-v3": {"unit_price": 0.04, "unit": "images"},
+        "fal-ai/stable-diffusion-v3-medium": {"unit_price": 0.035, "unit": "images"},
+        # Video models
+        "fal-ai/kling-video/v1.5/pro/image-to-video": {"unit_price": 0.1, "unit": "seconds"},
+        "fal-ai/minimax-video/image-to-video": {"unit_price": 0.5, "unit": "videos"},
+        "fal-ai/luma-dream-machine/image-to-video": {"unit_price": 0.5, "unit": "videos"},
+        "fal-ai/runway-gen3/turbo/image-to-video": {"unit_price": 0.05, "unit": "seconds"},
+        "fal-ai/hunyuan-video/image-to-video": {"unit_price": 0.00125, "unit": "compute seconds"},
+        # TTS models
+        "fal-ai/f5-tts": {"unit_price": 0.05, "unit": "1000 characters"},
+        "fal-ai/kokoro": {"unit_price": 0.02, "unit": "1000 characters"},
+        "fal-ai/playht/tts/v3": {"unit_price": 0.03, "unit": "minutes"},
+        "fal-ai/minimax-tts/text-to-speech": {"unit_price": 0.1, "unit": "1000 characters"},
+    }
+
     def __init__(self):
         """Initialize the fal.ai client."""
         self.api_key = get_api_key()
@@ -302,3 +326,93 @@ class FalClient:
             return self.TTS_MODELS
         else:
             raise ValueError(f"Unknown category: {category}")
+
+    def estimate_image_cost(
+        self,
+        model_id: str,
+        num_images: int = 1,
+        width: int = 1024,
+        height: int = 1024,
+    ) -> dict | None:
+        """
+        Estimate the cost for image generation.
+
+        Returns:
+            Dict with 'cost', 'unit', 'breakdown' or None if pricing unavailable
+        """
+        price_info = self.PRICING.get(model_id)
+        if not price_info:
+            return None
+
+        unit_price = price_info["unit_price"]
+        unit = price_info["unit"]
+
+        if unit == "megapixels":
+            megapixels = (width * height) / 1_000_000
+            cost = unit_price * megapixels * num_images
+            breakdown = f"{num_images} image(s) × {megapixels:.2f}MP × ${unit_price}/MP"
+        else:  # "images"
+            cost = unit_price * num_images
+            breakdown = f"{num_images} image(s) × ${unit_price}/image"
+
+        return {"cost": cost, "unit": unit, "breakdown": breakdown}
+
+    def estimate_video_cost(
+        self,
+        model_id: str,
+        duration_seconds: float = 5.0,
+    ) -> dict | None:
+        """
+        Estimate the cost for video generation.
+
+        Returns:
+            Dict with 'cost', 'unit', 'breakdown' or None if pricing unavailable
+        """
+        price_info = self.PRICING.get(model_id)
+        if not price_info:
+            return None
+
+        unit_price = price_info["unit_price"]
+        unit = price_info["unit"]
+
+        if unit == "seconds" or unit == "compute seconds":
+            cost = unit_price * duration_seconds
+            breakdown = f"{duration_seconds}s × ${unit_price}/{unit}"
+        else:  # "videos"
+            cost = unit_price
+            breakdown = f"1 video × ${unit_price}/video"
+
+        return {"cost": cost, "unit": unit, "breakdown": breakdown}
+
+    def estimate_tts_cost(
+        self,
+        model_id: str,
+        text: str,
+    ) -> dict | None:
+        """
+        Estimate the cost for text-to-speech.
+
+        Returns:
+            Dict with 'cost', 'unit', 'breakdown' or None if pricing unavailable
+        """
+        price_info = self.PRICING.get(model_id)
+        if not price_info:
+            return None
+
+        unit_price = price_info["unit_price"]
+        unit = price_info["unit"]
+        char_count = len(text)
+
+        if "1000 characters" in unit:
+            cost = unit_price * (char_count / 1000)
+            breakdown = f"{char_count} chars × ${unit_price}/1k chars"
+        elif "minutes" in unit:
+            # Rough estimate: ~150 words/min, ~5 chars/word = 750 chars/min
+            est_minutes = char_count / 750
+            cost = unit_price * est_minutes
+            breakdown = f"~{est_minutes:.2f} min × ${unit_price}/min"
+        else:
+            cost = unit_price
+            breakdown = f"${unit_price} per request"
+
+        return {"cost": cost, "unit": unit, "breakdown": breakdown}

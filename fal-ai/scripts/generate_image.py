@@ -156,6 +156,21 @@ def main():
     print()
     print(f"Generated {len(downloaded_paths)} image(s) in {output_dir}")
 
+    # Show cost estimate
+    if downloaded_paths and images:
+        # Get dimensions from first image
+        width = images[0].get("width", 1024)
+        height = images[0].get("height", 1024)
+        model_id = client.IMAGE_MODELS.get(args.model, args.model)
+        cost_info = client.estimate_image_cost(
+            model_id=model_id,
+            num_images=len(downloaded_paths),
+            width=width,
+            height=height,
+        )
+        if cost_info:
+            print(f"Estimated cost: ${cost_info['cost']:.4f} ({cost_info['breakdown']})")
+
     # Open images if requested
     if args.open and downloaded_paths:
         for path in downloaded_paths:

@@ -149,6 +149,15 @@ def main():
         print(f"Audio URL (download manually): {audio_url}")
         sys.exit(1)
 
+    # Show cost estimate
+    model_id = client.TTS_MODELS.get(args.model, args.model)
+    cost_info = client.estimate_tts_cost(
+        model_id=model_id,
+        text=args.text,
+    )
+    if cost_info:
+        print(f"Estimated cost: ${cost_info['cost']:.4f} ({cost_info['breakdown']})")
+
     # Open audio if requested
     if args.open:
         try:
