@@ -40,6 +40,8 @@ class FalClient:
         "flux-dev": "fal-ai/flux/dev",
         "flux-schnell": "fal-ai/flux/schnell",
         "flux-realism": "fal-ai/flux-realism",
+        "flux-kontext": "fal-ai/flux-pro/kontext",
+        "nano-banana-pro": "fal-ai/nano-banana-pro",
         "stable-diffusion-xl": "fal-ai/stable-diffusion-v3-medium",
         "recraft-v3": "fal-ai/recraft-v3",
     }
@@ -47,6 +49,7 @@ class FalClient:
     # Image-to-video models (require input image)
     VIDEO_MODELS = {
         "kling": "fal-ai/kling-video/v1.5/pro/image-to-video",
+        "kling-v2.6": "fal-ai/kling-video/v2.6/pro/image-to-video",
         "minimax": "fal-ai/minimax-video/image-to-video",
         "luma": "fal-ai/luma-dream-machine/image-to-video",
         "runway-gen3": "fal-ai/runway-gen3/turbo/image-to-video",
@@ -55,6 +58,8 @@ class FalClient:
 
     # Text-to-video models (generate video from text prompt only)
     TEXT_TO_VIDEO_MODELS = {
+        "veo3": "fal-ai/veo3",
+        "kling-v2.6": "fal-ai/kling-video/v2.6/pro/text-to-video",
         "hunyuan": "fal-ai/hunyuan-video",
         "hunyuan-v1.5": "fal-ai/hunyuan-video-v1.5/text-to-video",
         "minimax": "fal-ai/minimax/video-01",
@@ -97,15 +102,20 @@ class FalClient:
         "fal-ai/flux/dev": {"unit_price": 0.025, "unit": "megapixels"},
         "fal-ai/flux-pro/v1.1": {"unit_price": 0.04, "unit": "megapixels"},
         "fal-ai/flux-realism": {"unit_price": 0.035, "unit": "megapixels"},
+        "fal-ai/flux-pro/kontext": {"unit_price": 0.04, "unit": "megapixels"},
+        "fal-ai/nano-banana-pro": {"unit_price": 0.15, "unit": "images"},  # 4K outputs charged double
         "fal-ai/recraft-v3": {"unit_price": 0.04, "unit": "images"},
         "fal-ai/stable-diffusion-v3-medium": {"unit_price": 0.035, "unit": "images"},
         # Image-to-video models
         "fal-ai/kling-video/v1.5/pro/image-to-video": {"unit_price": 0.1, "unit": "seconds"},
+        "fal-ai/kling-video/v2.6/pro/image-to-video": {"unit_price": 0.14, "unit": "seconds"},
         "fal-ai/minimax-video/image-to-video": {"unit_price": 0.5, "unit": "videos"},
         "fal-ai/luma-dream-machine/image-to-video": {"unit_price": 0.5, "unit": "videos"},
         "fal-ai/runway-gen3/turbo/image-to-video": {"unit_price": 0.05, "unit": "seconds"},
         "fal-ai/hunyuan-video-v1.5/image-to-video": {"unit_price": 0.00125, "unit": "compute seconds"},
         # Text-to-video models
+        "fal-ai/veo3": {"unit_price": 0.40, "unit": "seconds"},  # with audio; $0.20 without
+        "fal-ai/kling-video/v2.6/pro/text-to-video": {"unit_price": 0.14, "unit": "seconds"},
         "fal-ai/hunyuan-video": {"unit_price": 0.075, "unit": "seconds"},
         "fal-ai/hunyuan-video-v1.5/text-to-video": {"unit_price": 0.075, "unit": "seconds"},
         "fal-ai/minimax/video-01": {"unit_price": 0.5, "unit": "videos"},

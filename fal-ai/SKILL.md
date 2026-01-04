@@ -2,12 +2,12 @@
 name: fal-ai
 description: |
   Generate images, videos, and speech using fal.ai API. Use when asked to:
-  - Create/generate images from text prompts (Flux, Recraft)
-  - Generate videos from text prompts (Hunyuan, LTX, Minimax, Wan)
-  - Animate images into videos (Kling, Luma, Runway)
+  - Create/generate images from text prompts (Flux, Flux Kontext, Nano Banana Pro, Recraft)
+  - Generate videos from text prompts (Veo 3, Kling v2.6, Hunyuan, LTX, Minimax, Wan)
+  - Animate images into videos (Kling v2.6, Kling, Luma, Runway)
   - Convert text to speech or clone voices (F5-TTS, Kokoro)
 
-  Trigger phrases: "generate image", "create video", "text-to-video", "animate this image", "make a video of", "voice cloning", "text-to-speech", "fal.ai"
+  Trigger phrases: "generate image", "create video", "text-to-video", "animate this image", "make a video of", "voice cloning", "text-to-speech", "fal.ai", "veo", "kling"
 ---
 
 # fal.ai Media Generation
@@ -54,6 +54,8 @@ Generate images from text descriptions using state-of-the-art models.
 | `flux-dev` | Development model | Medium | High |
 | `flux-pro` | Production quality | Slow | Best |
 | `flux-realism` | Photorealistic | Medium | High |
+| `flux-kontext` | Context-aware editing | Medium | High |
+| `nano-banana-pro` | Gemini-powered, web search | Medium | High |
 | `recraft-v3` | Design/artistic | Medium | High |
 | `stable-diffusion-xl` | Classic SD | Medium | Good |
 
@@ -95,6 +97,8 @@ Generate videos directly from text prompts (no input image required).
 
 | Model | Description | Cost | Max Duration |
 |-------|-------------|------|--------------|
+| `veo3` | Google Veo 3, best quality + audio | ~$2.00/5s | ~8s |
+| `kling-v2.6` | Kling 2.6 Pro, cinematic | ~$0.70/5s | ~10s |
 | `ltx-v2-fast` (default) | LTX 2.0 Fast, good balance | ~$0.20/5s | ~10s |
 | `ltx-v2` | LTX 2.0, higher quality | ~$0.20/5s | ~10s |
 | `hunyuan` | Hunyuan, high visual quality | ~$0.38/5s | ~5s |
@@ -134,6 +138,7 @@ Animate static images into videos (requires an input image).
 | Model | Description | Quality |
 |-------|-------------|---------|
 | `kling` (default) | Kling v1.5 Pro | Excellent |
+| `kling-v2.6` | Kling v2.6 Pro + audio | Best |
 | `minimax` | MiniMax video | Good |
 | `luma` | Luma Dream Machine | Good |
 | `runway-gen3` | Runway Gen-3 Turbo | Excellent |
