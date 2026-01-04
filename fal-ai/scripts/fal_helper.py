@@ -44,13 +44,24 @@ class FalClient:
         "recraft-v3": "fal-ai/recraft-v3",
     }
 
-    # Video generation models
+    # Image-to-video models (require input image)
     VIDEO_MODELS = {
         "kling": "fal-ai/kling-video/v1.5/pro/image-to-video",
         "minimax": "fal-ai/minimax-video/image-to-video",
         "luma": "fal-ai/luma-dream-machine/image-to-video",
         "runway-gen3": "fal-ai/runway-gen3/turbo/image-to-video",
-        "hunyuan": "fal-ai/hunyuan-video/image-to-video",
+        "hunyuan": "fal-ai/hunyuan-video-v1.5/image-to-video",
+    }
+
+    # Text-to-video models (generate video from text prompt only)
+    TEXT_TO_VIDEO_MODELS = {
+        "hunyuan": "fal-ai/hunyuan-video",
+        "hunyuan-v1.5": "fal-ai/hunyuan-video-v1.5/text-to-video",
+        "minimax": "fal-ai/minimax/video-01",
+        "ltx": "fal-ai/ltx-video",
+        "ltx-v2": "fal-ai/ltx-2/text-to-video",
+        "ltx-v2-fast": "fal-ai/ltx-2/text-to-video/fast",
+        "wan": "fal-ai/wan/v2.1/text-to-video",
     }
 
     # Text-to-speech models
@@ -88,12 +99,20 @@ class FalClient:
         "fal-ai/flux-realism": {"unit_price": 0.035, "unit": "megapixels"},
         "fal-ai/recraft-v3": {"unit_price": 0.04, "unit": "images"},
         "fal-ai/stable-diffusion-v3-medium": {"unit_price": 0.035, "unit": "images"},
-        # Video models
+        # Image-to-video models
         "fal-ai/kling-video/v1.5/pro/image-to-video": {"unit_price": 0.1, "unit": "seconds"},
         "fal-ai/minimax-video/image-to-video": {"unit_price": 0.5, "unit": "videos"},
         "fal-ai/luma-dream-machine/image-to-video": {"unit_price": 0.5, "unit": "videos"},
         "fal-ai/runway-gen3/turbo/image-to-video": {"unit_price": 0.05, "unit": "seconds"},
-        "fal-ai/hunyuan-video/image-to-video": {"unit_price": 0.00125, "unit": "compute seconds"},
+        "fal-ai/hunyuan-video-v1.5/image-to-video": {"unit_price": 0.00125, "unit": "compute seconds"},
+        # Text-to-video models
+        "fal-ai/hunyuan-video": {"unit_price": 0.075, "unit": "seconds"},
+        "fal-ai/hunyuan-video-v1.5/text-to-video": {"unit_price": 0.075, "unit": "seconds"},
+        "fal-ai/minimax/video-01": {"unit_price": 0.5, "unit": "videos"},
+        "fal-ai/ltx-video": {"unit_price": 0.04, "unit": "seconds"},
+        "fal-ai/ltx-2/text-to-video": {"unit_price": 0.04, "unit": "seconds"},
+        "fal-ai/ltx-2/text-to-video/fast": {"unit_price": 0.04, "unit": "seconds"},
+        "fal-ai/wan/v2.1/text-to-video": {"unit_price": 0.05, "unit": "seconds"},
         # TTS models
         "fal-ai/f5-tts": {"unit_price": 0.05, "unit": "1000 characters"},
         "fal-ai/kokoro": {"unit_price": 0.02, "unit": "1000 characters"},
@@ -215,6 +234,52 @@ class FalClient:
         result = self._submit_request(model_id, payload)
         return result.get("video", result)
 
+    def generate_video_from_text(
+        self,
+        prompt: str,
+        model: str = "ltx-v2-fast",
+        aspect_ratio: str = "16:9",
+        resolution: str = "720p",
+        duration: float | None = None,
+        seed: int | None = None,
+    ) -> dict:
+        """
+        Generate a video from a text prompt (no input image required).
+
+        Args:
+            prompt: Text description of the video to generate
+            model: Model shortname or full fal.ai model ID
+            aspect_ratio: Aspect ratio (16:9, 9:16, 1:1, etc.)
+            resolution: Video resolution (480p, 720p, 1080p)
+            duration: Video duration in seconds (model-dependent, typically 5-10s)
+            seed: Random seed for reproducibility
+
+        Returns:
+            Dict with 'url' for the generated video
+        """
+        # Resolve model shortname to full ID
+        model_id = self.TEXT_TO_VIDEO_MODELS.get(model, model)
+
+        payload = {
+            "prompt": prompt,
+        }
+
+        # Add optional parameters
+        if aspect_ratio:
+            payload["aspect_ratio"] = aspect_ratio
+
+        if resolution:
+            payload["resolution"] = resolution
+
+        if duration is not None:
+            payload["duration"] = duration
+
+        if seed is not None:
+            payload["seed"] = seed
+
+        result = self._submit_request(model_id, payload)
+        return result.get("video", result)
+
     def text_to_speech(
         self,
         text: str,
@@ -316,12 +381,14 @@ class FalClient:
 
         return path
 
-    def list_models(self, category: Literal["image", "video", "tts"] = "image") -> dict:
+    def list_models(self, category: Literal["image", "video", "text-to-video", "tts"] = "image") -> dict:
         """List available models for a category."""
         if category == "image":
             return self.IMAGE_MODELS
         elif category == "video":
             return self.VIDEO_MODELS
+        elif category == "text-to-video":
+            return self.TEXT_TO_VIDEO_MODELS
         elif category == "tts":
             return self.TTS_MODELS
         else:

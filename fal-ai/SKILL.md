@@ -1,11 +1,23 @@
 ---
 name: fal-ai
-description: Generate images, videos, and speech using fal.ai API. Use when asked to create images from text, animate images into videos, or convert text to speech using fal.ai models like Flux, Kling, Runway, or F5-TTS.
+description: |
+  Generate images, videos, and speech using fal.ai API. Use when asked to:
+  - Create/generate images from text prompts (Flux, Recraft)
+  - Generate videos from text prompts (Hunyuan, LTX, Minimax, Wan)
+  - Animate images into videos (Kling, Luma, Runway)
+  - Convert text to speech or clone voices (F5-TTS, Kokoro)
+
+  Trigger phrases: "generate image", "create video", "text-to-video", "animate this image", "make a video of", "voice cloning", "text-to-speech", "fal.ai"
 ---
 
 # fal.ai Media Generation
 
 Generate images, videos, and speech using fal.ai's suite of AI models.
+
+**Important distinctions:**
+- **Text-to-Image**: `generate_image.py` - Creates images from text prompts
+- **Text-to-Video**: `generate_video_text.py` - Creates videos from text prompts (no image needed)
+- **Image-to-Video**: `generate_video.py` - Animates an existing image into video
 
 ## Setup
 
@@ -22,10 +34,12 @@ Get your API key from https://fal.ai/dashboard/keys
 | Task | Command |
 |------|---------|
 | Generate image | `./scripts/generate_image.py "prompt"` |
+| Generate video from text | `./scripts/generate_video_text.py "prompt"` |
 | Generate video from image | `./scripts/generate_video.py image.png` |
 | Convert text to speech | `./scripts/generate_speech.py "text"` |
 | List image models | `./scripts/generate_image.py --list-models ""` |
-| List video models | `./scripts/generate_video.py --list-models` |
+| List text-to-video models | `./scripts/generate_video_text.py --list-models` |
+| List image-to-video models | `./scripts/generate_video.py --list-models` |
 | List TTS models | `./scripts/generate_speech.py --list-models` |
 
 ## Text-to-Image Generation
@@ -47,19 +61,19 @@ Generate images from text descriptions using state-of-the-art models.
 
 ```bash
 # Basic generation
-./scripts/generate_image.py "A serene mountain landscape at sunset"
+uv run ./scripts/generate_image.py "A serene mountain landscape at sunset"
 
 # Specify model and aspect ratio
-./scripts/generate_image.py "A cyberpunk cityscape" --model flux-pro --aspect landscape_16_9
+uv run ./scripts/generate_image.py "A cyberpunk cityscape" --model flux-pro --aspect landscape_16_9
 
 # Generate multiple images
-./scripts/generate_image.py "A cute robot mascot" --num 4 --output ./robots/
+uv run ./scripts/generate_image.py "A cute robot mascot" --num 4 --output ./robots/
 
 # With negative prompt and seed
-./scripts/generate_image.py "Professional headshot" --negative "cartoon, anime" --seed 42
+uv run ./scripts/generate_image.py "Professional headshot" --negative "cartoon, anime" --seed 42
 
 # Open image after generation
-./scripts/generate_image.py "A beautiful garden" --open
+uv run ./scripts/generate_image.py "A beautiful garden" --open
 ```
 
 ### Aspect Ratios
@@ -73,9 +87,47 @@ Generate images from text descriptions using state-of-the-art models.
 - `21_9` - Ultra-wide
 - `9_21` - Ultra-tall
 
+## Text-to-Video Generation
+
+Generate videos directly from text prompts (no input image required).
+
+### Available Models
+
+| Model | Description | Cost | Max Duration |
+|-------|-------------|------|--------------|
+| `ltx-v2-fast` (default) | LTX 2.0 Fast, good balance | ~$0.20/5s | ~10s |
+| `ltx-v2` | LTX 2.0, higher quality | ~$0.20/5s | ~10s |
+| `hunyuan` | Hunyuan, high visual quality | ~$0.38/5s | ~5s |
+| `hunyuan-v1.5` | Hunyuan 1.5, improved motion | ~$0.38/5s | ~5s |
+| `minimax` | MiniMax Video-01 | ~$0.50/video | ~5s |
+| `wan` | Wan 2.1, fast | ~$0.25/5s | ~5s |
+
+### Usage
+
+```bash
+# Basic text-to-video
+uv run ./scripts/generate_video_text.py "a cat walking on the beach at sunset"
+
+# Cinematic video with specific model
+uv run ./scripts/generate_video_text.py "cinematic drone shot of mountains at sunrise" --model hunyuan
+
+# Vertical video for social media
+uv run ./scripts/generate_video_text.py "person dancing in studio" --aspect 9:16 --resolution 1080p
+
+# With seed for reproducibility
+uv run ./scripts/generate_video_text.py "ocean waves crashing" --seed 42 --open
+```
+
+### Tips for Text-to-Video
+
+1. **Be descriptive** - Include motion, camera angles, lighting
+2. **Cinematic keywords** - "cinematic", "8k", "dramatic lighting" help quality
+3. **Duration limits** - Most models generate 5-10 second clips
+4. **Resolution tradeoffs** - Higher resolution = slower generation
+
 ## Image-to-Video Generation
 
-Animate static images into videos.
+Animate static images into videos (requires an input image).
 
 ### Available Models
 
@@ -91,19 +143,19 @@ Animate static images into videos.
 
 ```bash
 # Basic video generation
-./scripts/generate_video.py image.png
+uv run ./scripts/generate_video.py image.png
 
 # With motion prompt
-./scripts/generate_video.py portrait.jpg --prompt "person slowly smiles and nods"
+uv run ./scripts/generate_video.py portrait.jpg --prompt "person slowly smiles and nods"
 
 # Different model and duration
-./scripts/generate_video.py landscape.png --model runway-gen3 --duration 10
+uv run ./scripts/generate_video.py landscape.png --model runway-gen3 --duration 10
 
 # Specify output path
-./scripts/generate_video.py photo.jpg --output ./videos/animated.mp4 --open
+uv run ./scripts/generate_video.py photo.jpg --output ./videos/animated.mp4 --open
 ```
 
-### Tips for Video Generation
+### Tips for Image-to-Video
 
 1. **Image quality matters** - Use high-resolution, clear images
 2. **Simple motion prompts** - Describe the motion, not the scene
@@ -127,19 +179,19 @@ Convert text to natural-sounding speech.
 
 ```bash
 # Basic text-to-speech
-./scripts/generate_speech.py "Hello, welcome to our application!"
+uv run ./scripts/generate_speech.py "Hello, welcome to our application!"
 
 # Different model
-./scripts/generate_speech.py "This is a test." --model kokoro
+uv run ./scripts/generate_speech.py "This is a test." --model kokoro
 
 # Voice cloning with reference audio
-./scripts/generate_speech.py "Clone this voice" --reference my_voice.mp3
+uv run ./scripts/generate_speech.py "Clone this voice" --reference my_voice.mp3
 
 # Adjust speed
-./scripts/generate_speech.py "Speaking faster now" --speed 1.2
+uv run ./scripts/generate_speech.py "Speaking faster now" --speed 1.2
 
 # Specify output and open
-./scripts/generate_speech.py "Podcast intro" --output intro.wav --open
+uv run ./scripts/generate_speech.py "Podcast intro" --output intro.wav --open
 ```
 
 ### Voice Cloning
@@ -147,7 +199,7 @@ Convert text to natural-sounding speech.
 To clone a voice, provide a reference audio sample:
 
 ```bash
-./scripts/generate_speech.py "Text in cloned voice" --reference sample.mp3 --model f5-tts
+uv run ./scripts/generate_speech.py "Text in cloned voice" --reference sample.mp3 --model f5-tts
 ```
 
 Best practices for reference audio:
@@ -158,35 +210,42 @@ Best practices for reference audio:
 
 ## Common Workflows
 
-### Create a Short Video from Scratch
+### Create a Video from Text (Easiest)
+
+```bash
+# Direct text-to-video - no image needed
+uv run ./scripts/generate_video_text.py "A majestic eagle spreads its wings and takes flight from a cliff, cinematic, dramatic lighting" --model ltx-v2-fast --open
+```
+
+### Create a Video from Image (More Control)
 
 ```bash
 # 1. Generate the image
-./scripts/generate_image.py "A majestic eagle perched on a cliff" --model flux-pro --output eagle.png
+uv run ./scripts/generate_image.py "A majestic eagle perched on a cliff" --model flux-pro --output eagle.png
 
 # 2. Animate it
-./scripts/generate_video.py eagle.png --prompt "eagle spreads wings and takes flight" --open
+uv run ./scripts/generate_video.py eagle.png --prompt "eagle spreads wings and takes flight" --open
 ```
 
 ### Generate Marketing Assets
 
 ```bash
 # Product image variations
-./scripts/generate_image.py "Minimalist product photo of headphones on white background" --num 4 --aspect square_hd
+uv run ./scripts/generate_image.py "Minimalist product photo of headphones on white background" --num 4 --aspect square_hd
 
 # Social media formats
-./scripts/generate_image.py "Summer sale banner" --aspect landscape_16_9 --output banner_wide.png
-./scripts/generate_image.py "Summer sale banner" --aspect portrait_16_9 --output banner_story.png
+uv run ./scripts/generate_image.py "Summer sale banner" --aspect landscape_16_9 --output banner_wide.png
+uv run ./scripts/generate_image.py "Summer sale banner" --aspect portrait_16_9 --output banner_story.png
 ```
 
 ### Create Voiceover
 
 ```bash
 # Generate narration
-./scripts/generate_speech.py "Welcome to our product demo. Today we'll explore the amazing features..." --output narration.wav
+uv run ./scripts/generate_speech.py "Welcome to our product demo. Today we'll explore the amazing features..." --output narration.wav
 
 # With custom voice
-./scripts/generate_speech.py "Welcome to our product demo." --reference brand_voice.mp3 --output narration.wav
+uv run ./scripts/generate_speech.py "Welcome to our product demo." --reference brand_voice.mp3 --output narration.wav
 ```
 
 ## API Reference
@@ -206,7 +265,15 @@ images = client.generate_image(
     num_images=2,
 )
 
-# Generate video
+# Generate video from text (no image needed)
+video = client.generate_video_from_text(
+    prompt="cinematic ocean waves at sunset",
+    model="ltx-v2-fast",
+    aspect_ratio="16:9",
+    resolution="720p",
+)
+
+# Generate video from image
 video = client.generate_video(
     image_path="image.png",
     prompt="camera slowly pans right",
@@ -223,6 +290,7 @@ audio = client.text_to_speech(
 
 # Download results
 client.download_file(images[0]["url"], "output.png")
+client.download_file(video["url"], "output.mp4")
 ```
 
 ## Troubleshooting
