@@ -1,7 +1,6 @@
 ---
 name: commit-push
 description: "Commit and push changes with gitmoji-style messages. Triggers on '/commit-push' or phrases like 'commit and push', 'save my changes', 'push this'."
-model: claude-haiku-4-5-20241022
 ---
 
 # Commit and Push
